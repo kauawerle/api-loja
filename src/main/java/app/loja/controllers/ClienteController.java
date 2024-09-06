@@ -2,6 +2,7 @@ package app.loja.controllers;
 
 import app.loja.Entities.Cliente;
 import app.loja.service.ClienteService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,7 @@ public class ClienteController {
     private ClienteService clienteService;
 
     @PostMapping("/save")
-    public ResponseEntity<String> save(@RequestBody Cliente cliente){
+    public ResponseEntity<String> save(@RequestBody @Valid Cliente cliente){
         try {
             String result = this.clienteService.save(cliente);
             return new ResponseEntity<>(result, HttpStatus.OK);

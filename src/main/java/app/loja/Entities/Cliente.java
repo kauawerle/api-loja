@@ -2,6 +2,7 @@ package app.loja.Entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.util.List;
@@ -17,10 +18,19 @@ public class Cliente {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @NotBlank
     private String nome;
+
+    @NotBlank
     private String email;
+
+    @NotBlank
     private String telefone;
+
+    @NotNull
     private int idade;
+
+    @NotBlank
     private String endereco;
 
     @ManyToOne(cascade = CascadeType.ALL)
