@@ -1,7 +1,11 @@
 package app.loja.service;
 
+import app.loja.Entities.Cliente;
+import app.loja.Entities.Produto;
 import app.loja.Entities.Venda;
+import app.loja.repositories.ProdutoRepository;
 import app.loja.repositories.VendaRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,9 +17,23 @@ public class VendaService {
     @Autowired
     private VendaRepository vendaRepository;
 
+    @Autowired
+    ProdutoRepository produtoRepository;
+
+    @Transactional
     public String save(Venda venda){
+        double valorTotal = this.calcularTotalVenda(venda.getProduto());
+        venda.setValorTotal(valorTotal);
+
+        this.verificaIdadeCliente(venda.getCliente(), valorTotal);
+
         this.vendaRepository.save(venda);
-        return "Venda salvo";
+        return "Venda salva";
+    }
+
+    public String saveMultiple(List<Venda> vendas) {
+        this.vendaRepository.saveAll(vendas);
+        return "Vendas salvadas";
     }
 
     public String update(Venda vendaUpdate, long id) {
@@ -59,5 +77,34 @@ public class VendaService {
         }
         this.vendaRepository.deleteById(id);
         return "Venda removido";
+    }
+
+    public List<Venda> buscaVendaPorCliente(String nomeCliente) {
+        return this.vendaRepository.findByClientNameContaining(nomeCliente);
+    }
+
+    public List<Venda> buscaVendaFuncionario(String nomeFuncionario) {
+        return this.vendaRepository.findByEmployeeNameContaining(nomeFuncionario);
+    }
+
+    public List<Venda> buscarTop10VendasPorValorTotal() {
+        return this.vendaRepository.findByOrderByValorTotalDesc();
+    }
+
+    private double calcularTotalVenda(List<Produto>produtos) {
+        double valorTotal = 0;
+        for(Produto produto : produtos) {
+
+            Produto produtoAUX = produtoRepository.findById(produto.getId()).get();
+
+            valorTotal+=produtoAUX.getPreco();
+        }
+        return valorTotal;
+    }
+
+    private void verificaIdadeCliente(Cliente cliente, double valorTotal) {
+        if (cliente.getIdade() < 18 && valorTotal > 500) {
+            throw new IllegalArgumentException("O valor total da venda não pode exceder R$500,00 para menores de 18 anos!! >:(");
+        }
     }
 }

@@ -2,6 +2,7 @@ package app.loja.controllers;
 
 import app.loja.Entities.Venda;
 import app.loja.service.VendaService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +27,16 @@ public class VendaController {
             return new ResponseEntity<>(
                     "Erro:" + e.getMessage(),
                     HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PostMapping("/saveAll")
+    public ResponseEntity<String> saveMultiple(@Valid @RequestBody List<Venda> vendas) {
+        try {
+            String message = this.vendaService.saveMultiple(vendas);
+            return new ResponseEntity<>(message, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Erro: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -56,6 +67,21 @@ public class VendaController {
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST );
         }
+    }
+
+    @GetMapping("/cliente/{nomeCliente}")
+    public List<Venda> buscarVendasPorNomeCliente(@PathVariable String nomeCliente) {
+        return vendaService.buscaVendaPorCliente(nomeCliente);
+    }
+
+    @GetMapping("/funcionario/{nomeFuncionario}")
+    public List<Venda> buscarVendasPorNomeFuncionario(@PathVariable String nomeFuncionario) {
+        return vendaService.buscaVendaFuncionario(nomeFuncionario);
+    }
+
+    @GetMapping("/buscaVendaTop10")
+    public List<Venda> buscarTop10VendasPorValorTotal() {
+        return vendaService.buscarTop10VendasPorValorTotal();
     }
 
     @DeleteMapping("/delete/{id}")
